@@ -64,6 +64,11 @@ exports.forgotPassword = async (req, res, next) => {
         `
 
         sendMail({ to: user.email, subject: "Password Reset Request", text: message })
+
+        res.status(202).json({
+            success: true,
+            message: "check email for reset link"
+        })
     }
     catch (err) {
         res.status(500).json({
@@ -75,22 +80,27 @@ exports.forgotPassword = async (req, res, next) => {
 
 exports.resetPassword = async (req, res, next) => {
     const resetPasswordToken = req.params.resetToken;
+
     try {
         const user = await User.findOne({
             resetPasswordToken,
             resetPassowrdExpire: { $gt: Date.now() }
         });
+
         if (!user) {
             return res.status(400).json({
                 success: false,
                 error: "Invalid Reset Token"
             })
         }
+
         user.password = req.body.password;
-        user.resetPassowrdExpire = undefined;
+        user.resetPasswordExpire = undefined;
         user.resetPasswordToken = undefined;
+
         await user.save();
     }
+
     catch (err) {
         res.status(400).json({
             success: false,

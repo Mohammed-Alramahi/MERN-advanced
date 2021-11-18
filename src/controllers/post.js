@@ -4,6 +4,7 @@ const User = require('../models/User');
 exports.createPost = async (req, res, next) => {
     const { title, content, imagePath } = req.body;
     const userId = req.user;
+
     try {
         const post = await Post.create({
             title,
@@ -12,11 +13,13 @@ exports.createPost = async (req, res, next) => {
             creator: userId
         })
         await post.save();
+
         res.status(201).json({
             success: true,
             data: post
         })
     }
+
     catch (err) {
         res.status(500).json({
             success: false,
@@ -28,12 +31,14 @@ exports.createPost = async (req, res, next) => {
 exports.getUserPosts = async (req, res, next) => {
     const userId = req.params.userId;
     const user = await User.findById(userId);
+
     if (!user) {
         return res.status(404).json({
             success: false,
             error: 'User not found'
         });
     }
+
     try {
         const posts = await Post.find({ creator: userId }).select('-__v -creator');
         res.status(200).json({
@@ -41,6 +46,7 @@ exports.getUserPosts = async (req, res, next) => {
             data: posts
         })
     }
+
     catch (err) {
         res.status(500).json({
             success: false,
@@ -97,23 +103,27 @@ exports.updatePost = async (req, res, next) => {
     const userId = req.user._id;
     const { content, title, imagePath } = req.body;
     const post = await Post.findById(postId);
+
     if (!post) {
         return res.status(404).json({
             success: false,
             error: "Post is not found!"
         })
     }
+
     try {
         if (post.creator.toString() == userId.toString()) {
             await Post.findByIdAndUpdate(postId, { content, title, imagePath });
         }
     }
+
     catch (error) {
         res.status(500).json({
             success: false,
             error: "Something went wrong"
         })
     }
+
     res.status(200).json({
         success: true,
         message: "Post Updated Successfully",

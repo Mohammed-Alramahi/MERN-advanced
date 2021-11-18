@@ -48,7 +48,7 @@ UserSchema.methods.getResetPasswordToken = async function () {
 
     this.resetPasswordExpire = Date.now() + 15 * (60 * 1000);
 
-    return resetToken;
+    return this.resetPasswordToken;
 }
 
 module.exports = model("User", UserSchema);

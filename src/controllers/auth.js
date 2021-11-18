@@ -28,12 +28,12 @@ exports.login = async (req, res, next) => {
             })
         }
         else {
-           const isMatched = await user.comparePasswords(password);
+            const isMatched = await user.comparePasswords(password);
             isMatched ? sendToken(user, 200, res) : res.status(404).json({
                 success: false,
-                error:"Invalid Credintials"
+                error: "Invalid Credintials"
             });
-        }  
+        }
     }
     catch (err) {
         res.status(500).json({
@@ -56,14 +56,14 @@ exports.forgotPassword = async (req, res, next) => {
         const resetToken = await user.getResetPasswordToken();
         await user.save();
         const resetUrl = `${process.env.HOST}/resetpassword/${resetToken}`;
-        
+
         const message = `
         <h1>Password Reset Request</h1>
         <p>Hello ${user.userName} your password reset link is: </p>
         <a href=${resetUrl} clicktracking=off>${resetUrl}</a>
         `
-        
-        sendMail({ to:user.email,subject:"Password Reset Request",text:message })
+
+        sendMail({ to: user.email, subject: "Password Reset Request", text: message })
     }
     catch (err) {
         res.status(500).json({
@@ -74,7 +74,29 @@ exports.forgotPassword = async (req, res, next) => {
 }
 
 exports.resetPassword = async (req, res, next) => {
-    res.send("another sad");
+    const resetPasswordToken = req.params.resetToken;
+    try {
+        const user = await User.findOne({
+            resetPasswordToken,
+            resetPassowrdExpire: { $gt: Date.now() }
+        });
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid Reset Token"
+            })
+        }
+        user.password = req.body.password;
+        user.resetPassowrdExpire = undefined;
+        user.resetPasswordToken = undefined;
+        await user.save();
+    }
+    catch (err) {
+        res.status(400).json({
+            success: false,
+            error: err.message
+        })
+    }
 }
 
 

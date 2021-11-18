@@ -48,3 +48,75 @@ exports.getUserPosts = async (req, res, next) => {
         })
     }
 }
+
+exports.getPosts = async (req, res, next) => {
+    const posts = await Post.find();
+    if (!posts) {
+        res.status(404).json({
+            success: false,
+            error: "No Posts Found"
+        })
+    }
+    res.status(200).json({
+        success: true,
+        data: posts
+    })
+}
+
+exports.deletePost = async (req, res, next) => {
+    const { postId } = req.params;
+    const userId = req.user._id;
+    const post = await Post.findById(postId);
+    if (!post) {
+        return res.status(404).json({
+            success: false,
+            error: "Post is not found!"
+        })
+    }
+    try {
+        if (post.creator.toString() == userId.toString()) {
+            await Post.findByIdAndDelete(postId);
+        }
+    }
+    catch (error) {
+        res.status(500).json({
+            success: false,
+            error: "Something went wrong"
+        })
+    }
+    res.status(204).json({
+        success: true,
+        message: "Post Deleted Successfully",
+        post
+    })
+
+}
+
+exports.updatePost = async (req, res, next) => {
+    const { postId } = req.params;
+    const userId = req.user._id;
+    const { content, title, imagePath } = req.body;
+    const post = await Post.findById(postId);
+    if (!post) {
+        return res.status(404).json({
+            success: false,
+            error: "Post is not found!"
+        })
+    }
+    try {
+        if (post.creator.toString() == userId.toString()) {
+            await Post.findByIdAndUpdate(postId, { content, title, imagePath });
+        }
+    }
+    catch (error) {
+        res.status(500).json({
+            success: false,
+            error: "Something went wrong"
+        })
+    }
+    res.status(200).json({
+        success: true,
+        message: "Post Updated Successfully",
+    })
+
+}

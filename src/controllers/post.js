@@ -1,6 +1,6 @@
 const Post = require('../models/Post');
 const User = require('../models/User');
-
+const redis = require('../utils/redis');
 exports.createPost = async (req, res, next) => {
     const { title, content, imagePath } = req.body;
     const userId = req.user;
@@ -30,29 +30,43 @@ exports.createPost = async (req, res, next) => {
 
 exports.getUserPosts = async (req, res, next) => {
     const userId = req.params.userId;
-    const user = await User.findById(userId);
+    const cache = await redis.getCache(userId);
 
-    if (!user) {
-        return res.status(404).json({
-            success: false,
-            error: 'User not found'
-        });
-    }
-
-    try {
-        const posts = await Post.find({ creator: userId }).select('-__v -creator');
+    if (cache) {
         res.status(200).json({
             success: true,
-            data: posts
+            from: "Redis",
+            data: JSON.parse(cache),
         })
     }
 
-    catch (err) {
-        res.status(500).json({
-            success: false,
-            error: err.message
-        })
+    else {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: 'User not found'
+            });
+        }
+
+        try {
+            const posts = await Post.find({ creator: userId }).select('-__v -creator');
+            await redis.setCache(userId, posts);
+            res.status(200).json({
+                success: true,
+                from: "db",
+                data: posts
+            })
+        }
+
+        catch (err) {
+            res.status(500).json({
+                success: false,
+                error: err.message
+            })
+        }
     }
+
 }
 
 exports.getPosts = async (req, res, next) => {

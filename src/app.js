@@ -1,6 +1,5 @@
 require('dotenv').config({ path: "config.env" });
 const express = require('express');
-
 const helmet = require('helmet');
 const connectDB = require('./config/db')
 const authRouter = require('./routes/auth');
@@ -19,9 +18,6 @@ const start = () => {
 app.use(express.json());
 app.use(helmet());
 
-app.get("/", (req, res) => {
-    res.send("www");
-})
 start();
 
 app.use("/api/auth", authRouter);

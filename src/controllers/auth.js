@@ -99,6 +99,11 @@ exports.resetPassword = async (req, res, next) => {
         user.resetPasswordToken = undefined;
 
         await user.save();
+
+        res.status(201).json({
+            success: true,
+            message: "Passowrd Updated Successfully"
+        })
     }
 
     catch (err) {

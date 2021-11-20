@@ -14,6 +14,9 @@ const start = () => {
     app.listen(PORT, () => console.log(`The Magic Happens On Port : ${PORT}`));
     connectDB();
 }
+if (process.env.NODE_ENV == "production") {
+    app.use(express.static("client/build"));
+}
 app.use(cors());
 app.use(express.json());
 app.use(helmet());

@@ -1,14 +1,13 @@
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { Login, Register, ResetPassword, ForgotPassword } from './components/screens/auth';
+import routes from './components/routing/routes';
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="login" element={<Login />} />
-        <Route path="register" element={<Register />} />
-        <Route path="resetpassword" element={<ResetPassword />} />
-        <Route path="forgotpassword" element={<ForgotPassword />} />
+        {routes.map(route => {
+          return <Route path={route.path} element={route.element} />
+        })}
       </Routes>
     </Router>
   );

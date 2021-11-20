@@ -13,6 +13,11 @@ exports.createPost = async (req, res, next) => {
         })
         await post.save();
 
+        const posts = await Post.find({ creator: userId })
+            .select('-__v -creator');
+
+        await redis.setCache(userId, posts);
+
         res.status(201).json({
             success: true,
             data: post

@@ -3,6 +3,7 @@ import Axios from '../../../../utils/axios';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import Form from './Form';
+import { Redirect } from 'react-router';
 function Register() {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
@@ -11,7 +12,7 @@ function Register() {
   const [severity, setSeverity] = useState('success');
   const [open, setOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
-
+  const [redirect, setRedirect] = useState(false);
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant='filled' {...props} />;
   });
@@ -40,9 +41,14 @@ function Register() {
       }
     );
     if (request?.data.success) {
+      const authToken = request.data.token;
       setOpen(true);
       setAlertMessage('Welcome on board!!');
       setSeverity('success');
+      localStorage.setItem('authToken', authToken);
+      setTimeout(() => {
+        setRedirect(true);
+      }, 1000);
     }
   };
 
@@ -60,6 +66,7 @@ function Register() {
           {alertMessage}
         </Alert>
       </Snackbar>
+      {redirect && <Redirect to='/login' />}
     </>
   );
 }

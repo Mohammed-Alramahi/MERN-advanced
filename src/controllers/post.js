@@ -14,7 +14,7 @@ exports.createPost = async (req, res, next) => {
         await post.save();
 
         const posts = await Post.find({ creator: userId })
-            .select('-__v -creator');
+            .select('-__v');
 
         await redis.setCache(userId, posts);
 
@@ -85,6 +85,12 @@ exports.getPosts = async (req, res, next) => {
     }
     else {
         const posts = await Post.find();
+
+        for (let i = 0; i < posts.length; i++) {
+            const user = await getUserInfo(posts[i].creator);
+            posts[i].creator = user;
+        }
+
         await redis.setCache("all-posts", posts);
         if (!posts) {
             res.status(404).json({
@@ -168,4 +174,13 @@ exports.updatePost = async (req, res, next) => {
         message: "Post Updated Successfully",
     })
 
+}
+const getUserInfo = async (userId) => {
+    const user = await User.findById(userId);
+    if (user) {
+        return user
+    }
+    else {
+        return null;
+    }
 }

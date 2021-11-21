@@ -18,8 +18,12 @@ const UserSchema = new Schema({
         minlength: 6,
         select: false
     },
+    gender: {
+        type: String,
+    },
     image: {
         type: String,
+        default: "default"
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date

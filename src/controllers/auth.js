@@ -4,10 +4,28 @@ const sendMail = require("../utils/mailer");
 
 
 exports.register = async (req, res, next) => {
-    const { userName, email, password, image } = req.body;
-    const user = await User.create({ userName, email, password, image });
-    await user.save();
-    sendToken(user, 201, res);
+    const { userName, email, password, image, gender } = req.body;
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+        return res.status(400).json({
+            success: false,
+            error: "User Already exists"
+        })
+    }
+
+    try {
+        const user = await User.create({ userName, email, password, image, gender });
+        await user.save();
+        sendToken(user, 201, res);
+    }
+
+    catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        })
+    }
 }
 
 exports.login = async (req, res, next) => {

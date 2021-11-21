@@ -17,7 +17,7 @@ async function getCache(key) {
 
 async function setCache(key, value) {
     try {
-        return await redisClient.set(key, JSON.stringify(value), "EX", 600);
+        return await redisClient.set(key, JSON.stringify(value), "EX", 300);
     } catch (error) {
         console.log(error);
     }

@@ -1,14 +1,18 @@
 import './App.css';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import Home from './components/screens/home/Home';
+import PrivateRouting from './components/routing/PrivateRouting';
 import routes from './components/routing/routes';
+
 function App() {
   return (
     <Router>
-      <Routes>
+      <Switch>
+        {/* <PrivateRouting Component={Home} path="/" /> */}
         {routes.map(route => {
-          return <Route path={route.path} element={route.element} />
+          return <Route exact path={route.path} component={route.component} />
         })}
-      </Routes>
+      </Switch>
     </Router>
   );
 }

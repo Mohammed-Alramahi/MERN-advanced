@@ -3,24 +3,25 @@ import Home from '../screens/home/Home';
 
 
 const routes = [{
-    path: "login",
-    element: <Login />
+    path: "/login",
+    component: Login
 },
 {
-    path: "register",
-    element: <Register />
+    path: "/register",
+    component: Register
 },
 {
-    path: "resetPassword",
-    element: <ResetPassword />
+    path: "/resetPassword/:resettoken",
+    component: ResetPassword
 },
 {
-    path: "forgotPassword",
-    element: <ForgotPassword />
+    path: "/forgotPassword",
+    component: ForgotPassword
 },
 {
-    path: "/",
-    element: <Home />
-}];
+    path: "/home",
+    component: Home
+},
+];
 
 export default routes;

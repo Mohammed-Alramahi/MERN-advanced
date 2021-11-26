@@ -1,0 +1,5 @@
+.active {
+  color: rgb(88, 62, 201);
+  background-color: #f77f00;
+  text-shadow: 1px 1px 1px rgb(0, 0, 0);
+}

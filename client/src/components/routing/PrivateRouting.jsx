@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Route, Redirect } from 'react-router-dom';
 function PrivateRouting({ component: Component, ...rest }) {
   return (
     <Route
+      exact
       {...rest}
-      render={(props) =>
+      component={(props) =>
         localStorage.getItem('authToken') ? (
           <Component {...props} />
         ) : (

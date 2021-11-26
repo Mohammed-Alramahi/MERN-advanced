@@ -15,6 +15,10 @@ const routes = [
         path: "/forgotPassword",
         component: ForgotPassword
     },
+    {
+        path: "/login",
+        component: Login
+    }
 ];
 
 export default routes;

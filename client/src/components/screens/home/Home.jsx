@@ -3,6 +3,7 @@ import Posts from '../posts/Posts';
 function Home() {
   return (
     <>
+      <h1>Home</h1>
       <Posts />
     </>
   );

@@ -1,6 +1,6 @@
 # MERN stack application with advanced REST API authentication
 
-#### This is a bare-bones example of a Sinatra application providing a REST API to a mongoose ODM AND with implementation of Redis.
+#### This is a bare-bones example of a very fast application providing a REST API to a mongoose ODM AND with implementation of Redis.
 
 **The entire application is contained within the repository including the client.**
 

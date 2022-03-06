@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const jwt = require('jsonwebtoken');
 const sendMail = require("../utils/mailer");
-
+const HttpException = require("../error-handlers/exception");
 
 exports.register = async (req, res, next) => {
     const { userName, email, password, image, gender } = req.body;
@@ -55,10 +55,7 @@ exports.login = async (req, res, next) => {
         }
     }
     catch (err) {
-        res.status(500).json({
-            success: false,
-            error: err.message
-        })
+        next(new HttpException(500, err.message));
     }
 }
 
@@ -90,10 +87,7 @@ exports.forgotPassword = async (req, res, next) => {
         })
     }
     catch (err) {
-        res.status(500).json({
-            success: false,
-            error: err.message
-        })
+      next(new HttpException(500, err.message));
     }
 }
 
@@ -126,10 +120,7 @@ exports.resetPassword = async (req, res, next) => {
     }
 
     catch (err) {
-        res.status(400).json({
-            success: false,
-            error: err.message
-        })
+        next(new HttpException(500, err.message));
     }
 }
 

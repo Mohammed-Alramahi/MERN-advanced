@@ -17,6 +17,17 @@ const PostSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
-    }
+    },
+    comments: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Comment',
+        default: []
+    }],
+    createdAt: {
+        type: Date,
+        default: new Date()
+    },
+    
+
 })
 module.exports = model('Post', PostSchema);

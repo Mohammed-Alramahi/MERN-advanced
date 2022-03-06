@@ -1,22 +1,18 @@
+const  HttpException  = require('../error-handlers/exception');
 const Post = require('../models/Post');
 const User = require('../models/User');
-const redis = require('../utils/redis');
 exports.createPost = async (req, res, next) => {
     const { title, content, imagePath } = req.body;
     const userId = req.user;
+    console.log(userId);
     try {
         const post = await Post.create({
             title,
             content,
             imagePath,
-            creator: userId
+            creator: userId,
         })
         await post.save();
-
-        const posts = await Post.find({ creator: userId })
-            .select('-__v');
-
-      
         res.status(201).json({
             success: true,
             data: post
@@ -24,14 +20,14 @@ exports.createPost = async (req, res, next) => {
     }
 
     catch (err) {
-        res.status(500).json({
-            success: false,
-            error: err.message
-        })
+       next(new HttpException(400, err.message));
     }
 }
 
 exports.getUserPosts = async (req, res, next) => {
+    
+    try {        
+        const { userId } = req.params;
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({
@@ -39,8 +35,6 @@ exports.getUserPosts = async (req, res, next) => {
                 error: 'User not found'
             });
         }
-
-        try {
             const posts = await Post.find({ creator: userId })
                 .select('-__v -creator');
             res.status(200).json({
@@ -51,16 +45,14 @@ exports.getUserPosts = async (req, res, next) => {
         }
 
         catch (err) {
-            res.status(500).json({
-                success: false,
-                error: err.message
-            })
+         next(new HttpException(400, err.message));
         }
+    
     }
 
 
 exports.getPosts = async (req, res, next) => {
-    
+    try {
         const posts = await Post.find();
 
         for (let i = 0; i < posts.length; i++) {
@@ -68,19 +60,25 @@ exports.getPosts = async (req, res, next) => {
             posts[i].creator = user;
     }
     
-        if (!posts) {
-            res.status(404).json({
+        if (!posts.length) {
+           return res.status(404).json({
                 success: false,
                 error: "No Posts Found"
             })
         }
-
-        res.status(200).json({
-            success: true,
-            from: "DB",
-            data: posts
-        })
-    
+        else {
+            res.status(200).json({
+                success: true,
+                from: "DB",
+                data: posts
+            })
+        }
+      
+     
+       }
+    catch (err) {
+        next(new HttpException(500, err.message));
+    }
 
 }
 
@@ -97,19 +95,15 @@ exports.deletePost = async (req, res, next) => {
     try {
         if (post.creator.toString() == userId.toString()) {
             await Post.findByIdAndDelete(postId);
+            return res.status(204).json({
+                success: true,
+                message: "Post Deleted Successfully"
+            });
         }
     }
-    catch (error) {
-        res.status(500).json({
-            success: false,
-            error: "Something went wrong"
-        })
+    catch (err) {
+        next(new HttpException(500, err.message));
     }
-    res.status(204).json({
-        success: true,
-        message: "Post Deleted Successfully",
-        post
-    })
 
 }
 
@@ -128,34 +122,29 @@ exports.updatePost = async (req, res, next) => {
     try {
         if (post.creator == userId) {
             await Post.findByIdAndUpdate(postId, { content, title, imagePath });
-
-            const allPosts = await Post.find();
-            const posts = await Post.find({ creator: userId })
-                .select('-__v -creator');
-
-            
+            return res.status(200).json({
+                success: true,
+                message: "Post Updated Successfully"
+            });
         }
     }
 
     catch (error) {
-        res.status(500).json({
-            success: false,
-            error: "Something went wrong"
-        })
+        throw new HttpException(400, error.message);
     }
-
-    res.status(200).json({
-        success: true,
-        message: "Post Updated Successfully",
-    })
 
 }
 const getUserInfo = async (userId) => {
-    const user = await User.findById(userId);
-    if (user) {
-        return user
+    try {
+        const user = await User.findById(userId);
+        if (user) {
+            return user
+        }
+        else {
+            throw new Error("User not found");
+        }
     }
-    else {
-        return null;
+    catch (err) {
+        throw new HttpException(404, err.message);
     }
 }

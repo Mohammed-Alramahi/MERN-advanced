@@ -16,8 +16,7 @@ exports.createPost = async (req, res, next) => {
         const posts = await Post.find({ creator: userId })
             .select('-__v');
 
-        await redis.setCache(userId, posts);
-
+      
         res.status(201).json({
             success: true,
             data: post
@@ -33,18 +32,6 @@ exports.createPost = async (req, res, next) => {
 }
 
 exports.getUserPosts = async (req, res, next) => {
-    const userId = req.params.userId;
-    const cache = await redis.getCache(userId);
-
-    if (cache) {
-        res.status(200).json({
-            success: true,
-            from: "Redis",
-            data: JSON.parse(cache),
-        })
-    }
-
-    else {
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({
@@ -56,7 +43,6 @@ exports.getUserPosts = async (req, res, next) => {
         try {
             const posts = await Post.find({ creator: userId })
                 .select('-__v -creator');
-            await redis.setCache(userId, posts);
             res.status(200).json({
                 success: true,
                 from: "db",
@@ -72,26 +58,16 @@ exports.getUserPosts = async (req, res, next) => {
         }
     }
 
-}
 
 exports.getPosts = async (req, res, next) => {
-    const cache = await redis.getCache("all-posts");
-    if (cache) {
-        return res.status(201).json({
-            success: true,
-            from: "Redis",
-            data: JSON.parse(cache)
-        })
-    }
-    else {
+    
         const posts = await Post.find();
 
         for (let i = 0; i < posts.length; i++) {
             const user = await getUserInfo(posts[i].creator);
             posts[i].creator = user;
-        }
-
-        await redis.setCache("all-posts", posts);
+    }
+    
         if (!posts) {
             res.status(404).json({
                 success: false,
@@ -104,7 +80,7 @@ exports.getPosts = async (req, res, next) => {
             from: "DB",
             data: posts
         })
-    }
+    
 
 }
 
@@ -157,8 +133,7 @@ exports.updatePost = async (req, res, next) => {
             const posts = await Post.find({ creator: userId })
                 .select('-__v -creator');
 
-            await redis.setCache(userId, posts);
-            await redis.setCache("all-posts", allPosts);
+            
         }
     }
 
